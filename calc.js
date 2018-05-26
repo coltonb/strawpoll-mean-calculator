@@ -1,6 +1,7 @@
 let urlTextArea = null;
 let titlesDiv = null;
 let avgsDiv = null;
+let submitButton = null;
 const strawpollURL = "https://www.strawpoll.me/api/v2/polls/";
 
 function getIdsFromURLs(text) {
@@ -24,7 +25,7 @@ function getIdsFromURLs(text) {
 function sendRequests(idArr) {
     for (let i = 0; i < idArr.length; i++) {
         let req = new XMLHttpRequest();
-        req.addEventListener("load", listBuilder);
+        req.addEventListener("load", buildList);
         req.open("GET", strawpollURL + idArr[i]);
         req.send();
     }
@@ -42,7 +43,7 @@ function getAverage(votesArr) {
     return avg;
 }
 
-function listBuilder() {
+function buildList() {
     let res = JSON.parse(this.responseText);
     try {
         let avg = getAverage(res.votes);
@@ -53,15 +54,19 @@ function listBuilder() {
     }
 }
 
+function inputListener() {
+    titlesDiv.innerHTML = "";
+    avgsDiv.innerHTML = "";
+
+    let ids = getIdsFromURLs(urlTextArea.value);
+    sendRequests(ids);
+}
+
 window.addEventListener("load", function() {
     urlTextArea = document.getElementById("urls");
     titlesDiv = document.getElementById("titles");
     avgsDiv = document.getElementById("avgs");
-    urlTextArea.addEventListener("change", function() {
-        titlesDiv.innerHTML = "";
-        avgsDiv.innerHTML = "";
-
-        let ids = getIdsFromURLs(urlTextArea.value);
-        sendRequests(ids);
-    });
+    submit = document.getElementById("submitButton");
+    urlTextArea.addEventListener("change", inputListener);
+    submit.addEventListener("click", inputListener);
 })
