@@ -3,6 +3,7 @@ body {
 }
 
 .result {
+    display: none;
     margin: 3px;
     padding: 3px;
     background-color: #fafafa;

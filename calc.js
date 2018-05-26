@@ -2,6 +2,10 @@ let urlTextArea = null;
 let titlesDiv = null;
 let avgsDiv = null;
 let submitButton = null;
+
+let currList = null;
+let itemsRemaining = 0;
+
 const strawpollURL = "https://www.strawpoll.me/api/v2/polls/";
 
 function getIdsFromURLs(text) {
@@ -23,9 +27,13 @@ function getIdsFromURLs(text) {
 }
 
 function sendRequests(idArr) {
+    itemsRemaining = idArr.length;
+    currList = new Array(idArr.length);
     for (let i = 0; i < idArr.length; i++) {
         let req = new XMLHttpRequest();
-        req.addEventListener("load", buildList);
+        req.addEventListener("load", function() {
+            insertIntoList(this.responseText, i);
+        });
         req.open("GET", strawpollURL + idArr[i]);
         req.send();
     }
@@ -43,18 +51,36 @@ function getAverage(votesArr) {
     return avg;
 }
 
-function buildList() {
-    let res = JSON.parse(this.responseText);
+function insertIntoList(responseText, index) {
     try {
-        let avg = getAverage(res.votes);
-        titlesDiv.innerHTML += res.title + "<br />";
-        avgsDiv.innerHTML += avg.toPrecision(3) + "<br />";
+        let res = JSON.parse(responseText);
+        currList[index] = res;
     } catch(err) {
-        // do nothing ):
+        currList[index] = {title: "Poll not found."};
+    }
+    itemsRemaining--;
+    if (itemsRemaining == 0) {
+        showResults();
     }
 }
 
+function showResults() {
+    for (let i = 0; i < currList.length; i++) {
+        try {
+            let avg = getAverage(currList[i].votes);
+            titlesDiv.innerHTML += currList[i].title + "<br />";
+            avgsDiv.innerHTML += avg.toPrecision(3) + "<br />";
+        } catch(err) {
+            // do nothing ):
+        }
+    }
+    titlesDiv.style.display = "block";
+    avgsDiv.style.display = "block";
+}
+
 function inputListener() {
+    titlesDiv.style.display = "none";
+    avgsDiv.style.display = "none";
     titlesDiv.innerHTML = "";
     avgsDiv.innerHTML = "";
 
