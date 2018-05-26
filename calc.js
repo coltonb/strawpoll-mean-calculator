@@ -67,6 +67,5 @@ window.addEventListener("load", function() {
     titlesDiv = document.getElementById("titles");
     avgsDiv = document.getElementById("avgs");
     submit = document.getElementById("submitButton");
-    urlTextArea.addEventListener("change", inputListener);
     submit.addEventListener("click", inputListener);
 })
